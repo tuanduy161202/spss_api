@@ -1,3 +1,3 @@
 module.exports = {
-  frontend: ['https://tkc.onrender.com', 'https://admin-tkc.onrender.com'],
+    frontend: ['http://localhost:3000/'],
 };
