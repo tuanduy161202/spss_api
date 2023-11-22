@@ -4,10 +4,11 @@ const Document = db.Document;
 
 exports.create = (req, res) => {
     const document = new Document({
+      id: req.body.id,
       name: req.body.name,
       pages: req.body.pages,
       format: req.body.format,
-      status: req.body.status,
+      selected: req.body.selected,
   });
     document.save((err, res) => {
     if (err) {
@@ -32,7 +33,7 @@ exports.getAll = (req, res) => {
 };
 
 exports.getSelected = (req, res) => {
-    Document.find({status: "selected"})
+    Document.find({selected: true})
         .sort({ created_at: -1 })
         .then(documents => {
             res.status(200).send({ status: 'success', data: documents });
@@ -48,7 +49,7 @@ exports.updateById = (req, res) => {
         name: req.body.name,
         pages: req.body.pages,
         format: req.body.format,
-        status: req.body.status,
+        selected: req.body.selected,
         update_at: new Date()
     };
     Document.findByIdAndUpdate(id, updateData, { new: true })

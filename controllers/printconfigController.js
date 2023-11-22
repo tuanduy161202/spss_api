@@ -1,27 +1,32 @@
 const db = require('../utils/db');
 var ObjectID = require('mongoose').Types.ObjectId;
-const Document = db.Document;
+const PrintConfig = db.PrintConfig;
 
 exports.create = (req, res) => {
-    const document = new Document({
-      name: req.body.name,
-      pages: req.body.pages,
-      format: req.body.format,
-      status: req.body.status,
+    const configs = new PrintConfig({
+        copies: req.body.copies,
+        printer: req.body.printer,
+        custom_print: req.body.custom_print,
+        pages: req.body.pages,
+        print_side: req.body.print_side,
+        orientation: req.body.orientation,
+        page_size: req.body.page_size,
+        page_margin: req.body.page_margin,
+        pages_sheet: req.body.pages_sheet,
+        creat_at: new Date(),
+        update_at: new Date(),
   });
-    document.save((err, res) => {
-    if (err) {
-        res.status(500).send({ status: 'fail', message: err });
-        return;
-    }
-    res
-        .status(200)
-        .send({ status: 'success', message: 'Document was created successfully!' });
-    });
+    configs.save()
+        .then(savedConfigs => {
+            res.status(200).send({ status: 'success', message: 'Document was created successfully!', data: savedConfigs });
+        })
+        .catch(err => {
+            res.status(500).send({ status: 'fail', message: err });
+        });
 };
 
 exports.getAll = (req, res) => {
-    Document.find({})
+    PrintConfig.find({})
         .sort({ created_at: -1 })
         .then(documents => {
             res.status(200).send({ status: 'success', data: documents });
@@ -31,11 +36,10 @@ exports.getAll = (req, res) => {
         });
 };
 
-exports.getSelected = (req, res) => {
-    Document.find({status: "selected"})
-        .sort({ created_at: -1 })
-        .then(documents => {
-            res.status(200).send({ status: 'success', data: documents });
+exports.getById = (req, res) => {
+    PrintConfig.findById(req.params._id)
+        .then(configs => {
+            res.status(200).send({ status: 'success', data: configs });
         })
         .catch(err => {
             res.status(500).send({ status: 'fail', message: err });
@@ -48,7 +52,7 @@ exports.updateById = (req, res) => {
         name: req.body.name,
         pages: req.body.pages,
         format: req.body.format,
-        status: req.body.status,
+        selected: req.body.selected,
         update_at: new Date()
     };
     Document.findByIdAndUpdate(id, updateData, { new: true })

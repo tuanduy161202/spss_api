@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const PrintConfigSchema = new Schema({
-    id: String,
+    copies: Number,
     printer: String,
-    pages_setting: String,
-    page_orientation: String,
+    custom_print: String,
+    pages: Array,
+    print_side: String,
+    orientation: String,
     page_size: String,
-    margin: String,
-    pages_per_sheet: String,
+    page_margin: String,
+    pages_sheet: String,
 }, {
     timestamps: {
         createdAt: 'created_at',

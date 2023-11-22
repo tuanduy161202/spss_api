@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const DocumentSchema = new Schema({
-    id: Number,
     name: String,
     pages: Number,
     formant: String,
-    selected: Boolean,
+    status: String, // ready, selected, printing, printed
 }, {
     timestamps: {
         createdAt: 'created_at',
