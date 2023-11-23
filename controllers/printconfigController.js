@@ -13,12 +13,12 @@ exports.create = (req, res) => {
         page_size: req.body.page_size,
         page_margin: req.body.page_margin,
         pages_sheet: req.body.pages_sheet,
-        creat_at: new Date(),
-        update_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
   });
     configs.save()
         .then(savedConfigs => {
-            res.status(200).send({ status: 'success', message: 'Document was created successfully!', data: savedConfigs });
+            res.status(200).send({ status: 'success', message: 'PrintConfigs was created successfully!', data: savedConfigs });
         })
         .catch(err => {
             res.status(500).send({ status: 'fail', message: err });
@@ -45,27 +45,36 @@ exports.getById = (req, res) => {
             res.status(500).send({ status: 'fail', message: err });
         });
 };
-
-exports.updateById = (req, res) => {
-    const id = req.params._id;
-    const updateData = {
-        name: req.body.name,
-        pages: req.body.pages,
-        format: req.body.format,
-        selected: req.body.selected,
-        update_at: new Date()
-    };
-    Document.findByIdAndUpdate(id, updateData, { new: true })
-        .then(updatedDocument => {
-            if (!updatedDocument) {
-                return res.status(404).send({ status: 'fail', message: 'Document not found' });
-            }
-            res.status(200).send({ status: 'success', data: updatedDocument });
+exports.deleteById = (req, res) => {
+    PrintConfig.deleteOne({ _id: req.params._id })
+        .then(result => {
+            console.log('PrintConfig deleted:', result);
         })
-        .catch(err => {
-            res.status(500).send({ status: 'fail', message: err });
+        .catch(error => {
+            console.error('Error deleting document:', error);
         });
 };
+
+//exports.updateById = (req, res) => {
+//    const id = req.params._id;
+//    const updateData = {
+//        name: req.body.name,
+//        pages: req.body.pages,
+//        format: req.body.format,
+//        selected: req.body.selected,
+//        update_at: new Date()
+//    };
+//    Document.findByIdAndUpdate(id, updateData, { new: true })
+//        .then(updatedDocument => {
+//            if (!updatedDocument) {
+//                return res.status(404).send({ status: 'fail', message: 'Document not found' });
+//            }
+//            res.status(200).send({ status: 'success', data: updatedDocument });
+//        })
+//        .catch(err => {
+//            res.status(500).send({ status: 'fail', message: err });
+//        });
+//};
 
 //exports.getAll = (req, res) => {
 //  const ipp = parseInt(req.query.limit) || 15;

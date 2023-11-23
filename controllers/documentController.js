@@ -9,19 +9,17 @@ exports.create = (req, res) => {
       format: req.body.format,
       status: req.body.status,
   });
-    document.save((err, res) => {
-    if (err) {
-        res.status(500).send({ status: 'fail', message: err });
-        return;
-    }
-    res
-        .status(200)
-        .send({ status: 'success', message: 'Document was created successfully!' });
-    });
+    document.save()
+        .then(savedDocument => {
+            res.status(200).send({ status: 'success', message: 'Documents was created successfully!', data: savedDocument });
+        })
+        .catch(err => {
+            res.status(500).send({ status: 'fail', message: err });
+        });
 };
 
 exports.getAll = (req, res) => {
-    Document.find({})
+    Document.find({ status: { $in: ['selected', 'ready'] } })
         .sort({ created_at: -1 })
         .then(documents => {
             res.status(200).send({ status: 'success', data: documents });
@@ -30,7 +28,15 @@ exports.getAll = (req, res) => {
             res.status(500).send({ status: 'fail', message: err });
         });
 };
-
+exports.getById = (req, res) => {
+    Document.findById(req.params._id)
+        .then(document => {
+            res.status(200).send({ status: 'success', data: document });
+        })
+        .catch(err => {
+            res.status(500).send({ status: 'fail', message: err });
+        });
+};
 exports.getSelected = (req, res) => {
     Document.find({status: "selected"})
         .sort({ created_at: -1 })
@@ -41,7 +47,6 @@ exports.getSelected = (req, res) => {
             res.status(500).send({ status: 'fail', message: err });
         });
 };
-
 exports.updateById = (req, res) => {
     const id = req.params._id;
     const updateData = {

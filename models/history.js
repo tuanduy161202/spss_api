@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const HistorySchema = new Schema({
-    id: String,
-    document_ids: Array,
+    document_id: String,
     config_id: String,
-    date: Date,
+    status: String,
+    finish_date: Date,
 }, {
     timestamps: {
         createdAt: 'created_at',

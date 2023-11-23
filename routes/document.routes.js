@@ -10,7 +10,9 @@ module.exports = function (app) {
     });
 
     app.post('/documents/create', controller.create);
-    app.get('/documents/', controller.getAll);
     app.get('/documents/selected/', controller.getSelected);
+    app.get('/documents/', controller.getAll);
+
+    app.get('/documents/:_id', controller.getById);
     app.put('/documents/update/:_id', controller.updateById);
 };

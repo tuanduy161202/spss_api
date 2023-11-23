@@ -11,5 +11,6 @@ module.exports = function (app) {
 
     app.post('/printconfig/create/', controller.create);
     app.get('/printconfig/', controller.getAll);
+    app.get('/printconfig/delete/:_id', controller.deleteById);
     app.get('/printconfig/:_id', controller.getById);
 };
