@@ -8,6 +8,8 @@ exports.create = (req, res) => {
       pages: req.body.pages,
       format: req.body.format,
       status: req.body.status,
+      created_at: new Date(),
+      updated_at: new Date(),
   });
     document.save()
         .then(savedDocument => {
@@ -54,7 +56,7 @@ exports.updateById = (req, res) => {
         pages: req.body.pages,
         format: req.body.format,
         status: req.body.status,
-        update_at: new Date()
+        updated_at: new Date()
     };
     Document.findByIdAndUpdate(id, updateData, { new: true })
         .then(updatedDocument => {
