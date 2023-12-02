@@ -4,8 +4,9 @@ const Schema = mongoose.Schema;
 const DocumentSchema = new Schema({
     name: String,
     pages: Number,
-    formant: String,
+    format: String,
     status: String, // ready, selected, printing, printed
+    fileId: String,
 }, {
     timestamps: {
         createdAt: 'created_at',

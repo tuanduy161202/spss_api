@@ -1,25 +1,91 @@
-const db = require('../utils/db');
-var ObjectID = require('mongoose').Types.ObjectId;
+﻿const db = require('../utils/db');
 const Document = db.Document;
 
-exports.create = (req, res) => {
-    const document = new Document({
-      name: req.body.name,
-      pages: req.body.pages,
-      format: req.body.format,
-      status: req.body.status,
-      created_at: new Date(),
-      updated_at: new Date(),
-  });
-    document.save()
-        .then(savedDocument => {
-            res.status(200).send({ status: 'success', message: 'Documents was created successfully!', data: savedDocument });
-        })
-        .catch(err => {
-            res.status(500).send({ status: 'fail', message: err });
-        });
-};
+const PDFParser = require('pdf-parse');
+const { ObjectId } = require('mongodb');
 
+exports.create = async (req, res) => {
+    try {
+        const file = req.file;
+        const filename = file.originalname;
+        const uploadStream = db.gfsBucket.openUploadStream(filename);
+        uploadStream.end(file.buffer);
+        await new Promise((resolve, reject) => {
+            uploadStream.on('finish', resolve);
+            uploadStream.on('error', reject);
+        });
+        let format = '';
+        let pages = 0;
+
+        if (filename.endsWith('.pdf')) {
+            format = 'pdf';
+            const downloadStream = db.gfsBucket.openDownloadStream(uploadStream.id);
+            let buffer = Buffer.alloc(0);
+
+            buffer = await new Promise((resolve, reject) => {
+                downloadStream.on('data', chunk => {
+                    buffer = Buffer.concat([buffer, chunk]);
+                });
+
+                downloadStream.on('end', () => {
+                    resolve(buffer);
+                });
+
+                downloadStream.on('error', (error) => {
+                    reject(error);
+                });
+            });
+
+            const data = await extractPDFPages(buffer);
+            pages = data.numpages;
+        }
+        else if (filename.endsWith('.docx')) {
+            format = 'docx';
+        };
+        const document = new db.Document({
+            name: filename,
+            status: "ready",
+            fileId: uploadStream.id, // Save the GridFS file ID
+            format: format,
+            pages: pages,
+            created_at: new Date(),
+            updated_at: new Date()
+        });
+        document.save()
+            .then(savedDocument => {
+                res.status(200).json({
+                    status: 'success',
+                    message: 'Document was created successfully!',
+                    data: savedDocument
+                });
+            })
+            .catch(err => {
+                res.status(500).json({ status: 'fail', message: err });
+            });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+async function extractPDFPages(buffer) {
+    const data = await PDFParser(buffer);
+    return data;
+}
+exports.download = (req, res) => {
+    try {
+        const fileId = req.params.fileId;
+
+        // Tìm file trong GridFSBucket
+        const downloadStream = db.gfsBucket.openDownloadStream(new ObjectId(fileId));
+
+        // Trả file về client
+        downloadStream.pipe(res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 exports.getAll = (req, res) => {
     Document.find({ status: { $in: ['selected', 'ready'] } })
         .sort({ created_at: -1 })

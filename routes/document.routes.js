@@ -1,5 +1,8 @@
 const controller = require('../controllers/documentController');
+const multer = require('multer');
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 module.exports = function (app) {
     app.use(function (req, res, next) {
     res.header(
@@ -9,7 +12,8 @@ module.exports = function (app) {
     next();
     });
 
-    app.post('/documents/create', controller.create);
+    app.post('/documents/create', upload.single('file'), controller.create);
+    app.get('/documents/download/:fileId', controller.download);
     app.get('/documents/selected/', controller.getSelected);
     app.get('/documents/', controller.getAll);
 
