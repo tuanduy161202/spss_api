@@ -15,6 +15,7 @@ module.exports = function (app) {
     app.post('/documents/create', upload.single('file'), controller.create);
     app.get('/documents/download/:fileId', controller.download);
     app.get('/documents/selected/', controller.getSelected);
+    app.get('/documents/delete/', controller.deleteById);
     app.get('/documents/', controller.getAll);
 
     app.get('/documents/:_id', controller.getById);

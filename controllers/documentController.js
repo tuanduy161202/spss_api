@@ -97,7 +97,20 @@ async function convertDocxToPdf(docxBuffer) {
         });
     });
 }
-
+exports.deleteById = (req, res) => {
+    Document.deleteOne({ _id: req.query.docId })
+        .then(result => {
+            console.log('Document deleted in documents:', result);
+            db.gfsBucket.delete(new ObjectId(req.query.fileId))
+                .then(res => {
+                    console.log('Deleted file in bucket.')
+                });
+            
+        })
+        .catch(error => {
+            console.error('Error deleting document:', error);
+        });
+};
 exports.download = (req, res) => {
     try {
         const fileId = req.params.fileId;
