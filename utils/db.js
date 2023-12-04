@@ -18,6 +18,7 @@ db.Document = require('../models/documents');
 db.PrintConfig = require('../models/printconfig');
 db.History = require('../models/history');
 db.Printer = require('../models/printer');
+db.User = require('../models/user');
 
 async function initializeGridFSBucket() {
     try {

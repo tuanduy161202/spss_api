@@ -4,6 +4,8 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     username: String,
     password: String,
+    name: String,
+    avatar: String,
     balance: Number
 }, {
     timestamps: {
@@ -12,5 +14,5 @@ const UserSchema = new Schema({
     }
 });
 
-const User = mongoose.model('printer', UserSchema);
+const User = mongoose.model('user', UserSchema);
 module.exports = User;
