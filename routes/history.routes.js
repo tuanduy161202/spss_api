@@ -13,5 +13,6 @@ module.exports = function (app) {
     app.get('/history/', controller.getAll);
     app.get('/history/status/:status', controller.getByStatus);
     app.get('/history/delete/:_id', controller.deleteById);
+    app.put('/history/update/:_id', controller.updateById);
     app.get('/history/:_id', controller.getById);
 };

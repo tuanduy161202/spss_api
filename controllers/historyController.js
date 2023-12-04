@@ -60,23 +60,23 @@ exports.deleteById = (req, res) => {
         });
 };
 
-//exports.updateById = (req, res) => {
-//    const id = req.params._id;
-//    const updateData = {
-//        name: req.body.name,
-//        pages: req.body.pages,
-//        format: req.body.format,
-//        selected: req.body.selected,
-//        update_at: new Date()
-//    };
-//    Document.findByIdAndUpdate(id, updateData, { new: true })
-//        .then(updatedDocument => {
-//            if (!updatedDocument) {
-//                return res.status(404).send({ status: 'fail', message: 'Document not found' });
-//            }
-//            res.status(200).send({ status: 'success', data: updatedDocument });
-//        })
-//        .catch(err => {
-//            res.status(500).send({ status: 'fail', message: err });
-//        });
-//};
+exports.updateById = (req, res) => {
+    const id = req.params._id;
+    const updateData = {
+        document_id: req.body.document_id,
+        config_id: req.body.config_id,
+        finish_date: req.body.finish_date,
+        status: req.body.status,
+        update_at: new Date()
+    };
+    History.findByIdAndUpdate(id, updateData, { new: true })
+        .then(updatedHistory => {
+            if (!updatedHistory) {
+                return res.status(404).send({ status: 'fail', message: 'History not found' });
+            }
+            res.status(200).send({ status: 'success', data: updatedHistory });
+        })
+        .catch(err => {
+            res.status(500).send({ status: 'fail', message: err });
+        });
+};
