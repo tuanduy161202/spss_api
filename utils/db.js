@@ -17,6 +17,7 @@ db.mongoose = mongoose;
 db.Document = require('../models/documents');
 db.PrintConfig = require('../models/printconfig');
 db.History = require('../models/history');
+db.Printer = require('../models/printer');
 
 async function initializeGridFSBucket() {
     try {

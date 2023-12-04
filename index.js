@@ -24,6 +24,7 @@ app.use('/static', express.static(__dirname + '/uploads'));
 require('./routes/document.routes')(app);
 require('./routes/printconfig.routes')(app);
 require('./routes/history.routes')(app);
+require('./routes/printer.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
