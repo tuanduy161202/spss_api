@@ -4,10 +4,19 @@ const Document = db.Document;
 const PDFParser = require('pdf-parse');
 const { ObjectId } = require('mongodb');
 
-const mammoth = require('mammoth');
-const pdf = require('html-pdf');
+const fs = require('fs').promises;
+const convertapi = require('convertapi')('1hhfXettVyqyfZ3k');
+const axios = require('axios');
 
-
+async function urlToBuffer(url) {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        return Buffer.from(response.data);
+    } catch (error) {
+        console.error('Error fetching the file from the URL:', error);
+        throw error; // or handle the error in a way that makes sense for your application
+    }
+}
 exports.create = async (req, res) => {
     try {
         const file = req.file;
@@ -46,7 +55,6 @@ exports.create = async (req, res) => {
             format = 'docx';
             pages = await extractDocxPages(buffer);
         };
-        console.log(pages);
         const document = new db.Document({
             name: decodeURIComponent(escape(filename)),
             status: "ready",
@@ -78,24 +86,12 @@ async function extractPDFPages(buffer) {
     return data.numpages;
 }
 async function extractDocxPages(docxBuffer) {
-    const pdfBuffer = await convertDocxToPdf(docxBuffer);
-    pages = await extractPDFPages(pdfBuffer);
+    const tempFilePath = './temp.docx';
+    await fs.writeFile(tempFilePath, docxBuffer)
+    const cvt_res = await convertapi.convert('pdf', { File: tempFilePath });
+    const pdfBuffer = await urlToBuffer(cvt_res.response.Files[0].Url);
+    const pages = await extractPDFPages(pdfBuffer);
     return pages;
-}
-async function convertDocxToPdf(docxBuffer) {
-    const { value } = await mammoth.extractRawText({ buffer: docxBuffer });
-
-    const html = `<html><head><meta charset="utf-8"></head><body>${value}</body></html>`;
-
-    return new Promise((resolve, reject) => {
-        pdf.create(html).toBuffer((err, buffer) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(buffer);
-            }
-        });
-    });
 }
 exports.deleteById = (req, res) => {
     Document.deleteOne({ _id: req.query.docId })
@@ -105,7 +101,7 @@ exports.deleteById = (req, res) => {
                 .then(res => {
                     console.log('Deleted file in bucket.')
                 });
-            
+
         })
         .catch(error => {
             console.error('Error deleting document:', error);
@@ -124,7 +120,7 @@ exports.download = (req, res) => {
                 }
 
                 const filename = decodeURIComponent(escape(files[0].filename));
-                console.log(filename)
+
                 // Đặt header để thông báo trình duyệt về loại tệp
                 res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
                 res.setHeader('Content-Disposition', `attachment; filename=${encodeURIComponent(filename)}`);
@@ -189,4 +185,4 @@ exports.updateById = (req, res) => {
         .catch(err => {
             res.status(500).send({ status: 'fail', message: err });
         });
-};      
+};
